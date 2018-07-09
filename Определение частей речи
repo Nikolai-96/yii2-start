@@ -1,0 +1,677 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace ИИ_Л.р.__2
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        
+        private void button1_Click(object sender, EventArgs e)
+        {
+            
+            string[][] N = new string[6][]; // Существительные
+            N[5] = new string[5] { "числ", "родин", "этим", "этих", "текста" };
+            N[4] = new string[2] { "иями", "ация"};
+            N[3] = new string[18] { "ями", "ами", "ией", "иям", "ием", "иях", "мва", "яна", "сть", "сти", "чик", "фит", "ция", "вет", "вка", "ник", "лет", "нка" };
+            N[2] = new string[24] { "ев", "ов", "ье", "еи", "ии", "ям", "ем", "ам", "ом", "ах", "ях", "ию", "ью", "ия", "ья", "ок", "ег", "ги", "ей", "ой", "ий", "га", "ие", "он" };
+            N[1] = new string[9] { "а", "и", "й", "о", "у", "ы", "ь", "ю", "я" };
+            N[0] = new string[10] {"он", "она", "оно", "ваш", "наш", "его", "ее", "их", "я", "кий" };
+
+            string[][] A = new string[5][]; // Прилагательные
+            A[3] = new string[20] { "ном","его", "ого", "ему", "ому", "ими", "ыми", "кой","шой", "ной", "той", "вой", "ший", "ний", "еий", "кие", "ный", "кий", "кин", "ины"};
+            A[2] = new string[17] {"ее","ие","ые","ое","ей","ый","ем","им","ым",
+                                    "их","ых","ую","юю","ая","яя","ою","ею"};
+
+
+            string[][] A_prich = new string[5][]; // Причастия
+            A_prich[3] = new string[10] { "ивш", "ывш", "ующ", "ущи", "ющи", "ящий", "щих", "щие", "ляя", "щее"};
+            A_prich[2] = new string[4] { /*"ем",*/ "нн", "вш", "ющ", "ущ"};//
+
+            string[][] A_chisl = new string[7][]; // Числительные 
+            A_chisl[6] = new string[9] {"тысяча","тысячи", "четыре", "шесть", "восемь", "девять", "десять", "миллион", "миллиард"};//
+            A_chisl[5] = new string[6] { "дного", "одной", "одним", "дцать", "шести", "двести" };//
+            A_chisl[4] = new string[7] { "двое", "трое", "семь", "пять", "один", "двух", "чуть" };//
+            A_chisl[3] = new string[19] { "два", "три", "еро",  "еро",  "рех", "еми", "яти", "ьми", "ати", "сто", "ста", "две", "три", "одна", "умя", "тью", "тью", "мью", "тью" };
+            A_chisl[2] = new string[1] {"мя"}; 
+
+            string[][] V = new string[5][]; // Глаголы
+            V[4] = new string[5] { "жено", "ейте", "уйте", "ться", "бран" };
+            V[3] = new string[29] {"зан", "ано", "нан","ила", "ыла", "ена", "ите", "или", "ыли", "ило", "ыло", 
+                "жит", "дит", "рит", "тит", "вит", "нит",  "ены", "ить", "ыть", "ишь", "ете", "йте", "ешь", "ать", "тся", "ена", "ана", "ела"};
+            V[2] = new string[18] { "ей", "уй", "ил", "ыл", "им", "ым", "ен", "ят", "ит", "ыт", "ую", "ли", "ем", "ло", "ет", "ют", "ны", "ть" };
+            V[1] = new string[3] { "й", "л", "ю" };
+            V[0] = new string[1] {"стоя"};
+
+            string[][] D = new string[5][]; // Наречие
+            D[4] = new string [4]  { "соко", "боко", "роко", "льно"};
+            D[3] = new string[12] { "чно", "еко", "имо", "мно", "жно", "жко", "ело", "тно", "здо", "зко", "ено", "нно" };
+            D[2] = new string [3]  {"шо", "хо", "но"};
+            D[0] = new string[5] { "зря", "тут", "там", "мало", "много" };
+
+            string[][] P = new string[7][]; // Предлоги, союзы, частицы
+            P[6] = new string[9] { "из-под", "крайне", "сквозь", "смотря", "другие", "другой", "другая", "другое", "словно" };
+            P[5] = new string[17] { "потом", "тогда", "также", "через", "среди", "ничем", "из-за", "более", "менее", "перед", "очень", "кроме", "между", "скоре", "котор", "однак", "ежели" };
+            P[4] = new string[11] { "зато", "тоже", "если", "чтоб", "кажд", "когд", "кабы", "коли", "близ", "ради", "хотя" };
+            P[3] = new string[13] { "это", "вне", "для", "над", "что", "или", "так", "как", "чем", "без", "под", "при", "про", };
+            P[2] = new string[9] { "со", "не", "по", "на", "от", "до", "за", "из", "но" };
+            P[1] = new string[7] { "о", "в", "к", "с", "у", "а", "и"}; 
+            textBox2.Clear();
+            dataGridView1.Columns.Clear();
+            dataGridView1.Rows.Clear();
+
+            bool stop = false;
+
+            //'.', '?', '!', '\t', ',', ':', '-',  
+            string text = textBox1.Text;
+            string[] word_mass = text.Split(new Char[] { ' ' }); // Разбиваем текст на предложения
+            for (int i = 0; i < word_mass.Length; i++)// Исследуем каждое слово
+            {
+                stop = false;
+                if (word_mass[i].Trim() != "")// Вместо знаков были пустые столбцы !!!
+                {
+
+                    textBox2.Text += word_mass[i].Trim() + "\r\n";
+                    
+                       
+                           
+                            dataGridView1.Columns.Add("Column", word_mass[i]); // Добавляем слово в столбец
+                            dataGridView1.Rows.Add(); // Добавляем строку
+                            // Проверяем слово из трёх букв и менее букв на некоторые местоимения
+                            if (word_mass[i].Length <= 3)
+                            {
+                                for (int k = 0; k < N[0].Length; k++) // Существительное
+                                {
+                                    if (word_mass[i].Contains(N[0][k]))
+                                    {
+                                        dataGridView1[i, 0].Value = "N";// +" + " + 0 + " + " + (k + 1);
+                                        stop = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            // Проверяем слово из трёх букв
+                         if (word_mass[i].Length == 3)
+                                {
+                                    for (int k = 0; k < P[3].Length; k++) // Предлоги, союзы, частицы
+                                    {
+                                        if (word_mass[i].Contains(P[3][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "P";// +" + " + 3 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                               // Проверяем слово из двух букв
+                            if (word_mass[i].Length == 2)
+                            {
+                                for (int k = 0; k < P[2].Length; k++) // Предлоги, союзы, частицы
+                                {
+                                    if (word_mass[i].Contains(P[2][k]))
+                                    {
+                                        dataGridView1[i, 0].Value = "P";// +" + " + 2 + " + " + (k + 1);
+                                        stop = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            // Проверяем слово из одной буквы
+                            if (word_mass[i].Length == 1)
+                            {
+                                for (int k = 0; k < P[1].Length; k++) // Предлоги, союзы, частицы
+                                {
+                                    if (word_mass[i].Contains(P[1][k]))
+                                    {
+                                        dataGridView1[i, 0].Value = "P";// +" + " + 1 + " + " + (k + 1);
+                                        stop = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Сравниваем с окончаниями из четырёх и более букв 
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < N[5].Length; k++) // Существительное (особые сущ.)
+                                    {
+                                        if (word_mass[i].Contains(N[5][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "N";// +" + " + 5 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false && word_mass[i].Length == 6)
+                                {
+                                    for (int k = 0; k < P[6].Length; k++) // Предлоги, союзы, частицы
+                                    {
+                                        if (word_mass[i].Contains(P[6][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "P";// +" + " + 6 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < P[5].Length; k++) // Предлоги, союзы, частицы
+                                    {
+                                        if (word_mass[i].Contains(P[5][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "P";// +" + " + 5 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (word_mass[i].Length >= 4)// Если окончание 4 и больше
+                                {
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < N[4].Length; k++)
+                                        {
+                                            if (N[4][k] == word_mass[i].Substring(word_mass[i].Length - 4)) // Существительное
+                                            {
+                                                dataGridView1[i, 0].Value = "N";// +" + " + 4 + " + " + (k + 1);
+                                                stop = true;
+                                            }
+                                        }
+                                    }
+                                    if (word_mass[i].Contains(V[0][0]))
+                                    {
+                                        dataGridView1[i, 0].Value = "V";// +" + " + 0 + " + " + 0;
+                                        stop = true;
+                                        break;
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < V[4].Length; k++) // Глагол
+                                        {
+                                            if (V[4][k] == word_mass[i].Substring(word_mass[i].Length - 4))
+                                            {
+                                                dataGridView1[i, 0].Value = "V";// +" + " + 4 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < D[4].Length; k++) // Наречие
+                                        {
+                                            if (D[4][k] == word_mass[i].Substring(word_mass[i].Length - 4))
+                                            {
+                                                dataGridView1[i, 0].Value = "D";// +" + " + 4 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < P[4].Length; k++) // Предлоги, союзы, частицы
+                                    {
+                                        if (word_mass[i].Contains(P[4][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "P";// +" + " + 4 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                   if (stop == false)
+                                {
+                                    for (int k = 0; k < A_chisl[6].Length; k++) // Числительное
+                                    {
+                                        if (word_mass[i].Contains(A_chisl[6][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "A";//_chisl" + " + " + 6 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < A_chisl[5].Length; k++) // Числительное
+                                    {
+                                        if (word_mass[i].Contains(A_chisl[5][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "A";//_chisl" + " + " + 5 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < A_chisl[4].Length; k++) // Числительное
+                                    {
+                                        if (word_mass[i].Contains(A_chisl[4][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "A";//_chisl" + " + " + 4 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // Сравниваем с окончаниями из трёх букв и более
+
+
+                                if (word_mass[i].Length >= 3)
+                                {
+                                    if (stop == false)// Для слов мало и много
+                                    {
+                                        for (int k = 0; k < D[0].Length; k++) // Наречие
+                                        {
+                                            if (word_mass[i].Contains(D[0][k]))
+                                            {
+                                                dataGridView1[i, 0].Value = "D";// +" + " + 0 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < N[3].Length; k++) // Существительное
+                                        {
+                                            if (N[3][k] == word_mass[i].Substring(word_mass[i].Length - 3))
+                                            {
+                                                dataGridView1[i, 0].Value = "N";// +" + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < A[3].Length; k++) // Прилагательное
+                                        {
+                                            if (A[3][k] == word_mass[i].Substring(word_mass[i].Length - 3))
+                                            {
+                                                dataGridView1[i, 0].Value = "A";// +" + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < V[3].Length; k++) // Глагол
+                                        {
+                                            if (V[3][k] == word_mass[i].Substring(word_mass[i].Length - 3))
+                                            {
+                                                dataGridView1[i, 0].Value = "V";// +" + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < D[3].Length; k++) // Наречие
+                                        {
+                                            if (D[3][k] == word_mass[i].Substring(word_mass[i].Length - 3))
+                                            {
+                                                dataGridView1[i, 0].Value = "D";// +" + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < A_prich[3].Length; k++) // Причастие
+                                        {
+                                            if (word_mass[i].Contains(A_prich[3][k]))
+                                            {
+                                                dataGridView1[i, 0].Value = "A";//_prich" + " + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < A_chisl[3].Length; k++) // Числительное
+                                        {
+                                            if (A_chisl[3][k] == word_mass[i].Substring(word_mass[i].Length - 3))
+                                            {
+                                                dataGridView1[i, 0].Value = "A";//_chisl" + " + " + 3 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                // Сравниваем с окончаниями из двух букв
+                                if (word_mass[i].Length >= 2)
+                                {
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < N[2].Length; k++) // Существительное
+                                        {
+                                            if (N[2][k] == word_mass[i].Substring(word_mass[i].Length - 2))
+                                            {
+                                                dataGridView1[i, 0].Value = "N";// +" + " + 2 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < A[2].Length; k++) // Прилагательное
+                                        {
+                                            if (A[2][k] == word_mass[i].Substring(word_mass[i].Length - 2))
+                                            {
+                                                dataGridView1[i, 0].Value = "A";// +" + " + 2 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < V[2].Length; k++) // Глагол
+                                        {
+                                            if (V[2][k] == word_mass[i].Substring(word_mass[i].Length - 2))
+                                            {
+                                                dataGridView1[i, 0].Value = "V";//+" + " + 2 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (stop == false)
+                                    {
+                                        for (int k = 0; k < D[2].Length; k++) // Наречие
+                                        {
+                                            if (D[2][k] == word_mass[i].Substring(word_mass[i].Length - 2))
+                                            {
+                                                dataGridView1[i, 0].Value = "D";// +" + " + 2 + " + " + (k + 1);
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < A_prich[2].Length; k++) // Причастие
+                                    {
+                                        if (word_mass[i].Contains(A_prich[2][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "A";//_prich" + " + " + 2 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < A_chisl[2].Length; k++) // Числительное
+                                    {
+                                        if (word_mass[i].Contains(A_chisl[2][k]))
+                                        {
+                                            dataGridView1[i, 0].Value = "A";//_chisl" + " + " + 2 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < V[1].Length; k++) // Глагол
+                                    {
+                                        if (V[1][k] == word_mass[i].Substring(word_mass[i].Length - 1))
+                                        {
+                                            dataGridView1[i, 0].Value = "V";// +" + " + 1 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    for (int k = 0; k < N[1].Length; k++) // Существительное
+                                    {
+                                        if (N[1][k] == word_mass[i].Substring(word_mass[i].Length - 1))
+                                        {
+                                            dataGridView1[i, 0].Value = "N";// +" + " + 1 + " + " + (k + 1);
+                                            stop = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (stop == false)
+                                {
+                                    dataGridView1[i, 0].Value = "N";
+                                    stop = true;
+
+                                }
+
+                            }
+                    }
+                
+
+            }
+         
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            textBox2.Text = dataGridView1[0, 0].Value.ToString();
+            for (int i = 0; i < dataGridView1.ColumnCount; i++) // Работа с первой строкой
+            {
+                if (dataGridView1[i, 0].Value.ToString() == "N")
+                {
+                    dataGridView1[i, 1].Value = "NP";
+                }
+                else
+                {
+                    dataGridView1[i, 1].Value = dataGridView1[i, 0].Value;
+                }
+            }
+
+            for (int j = 1; j < dataGridView1.RowCount; j++) // Работа с остальными строками
+            {
+                for (int i = 0; i < dataGridView1.ColumnCount; i++)
+                {
+                    if (i + 1 == dataGridView1.ColumnCount && j + 1 != dataGridView1.RowCount)
+                    {
+                      if (Convert.ToString(dataGridView1[i, j+1].Value) != "-")
+                        {
+                        dataGridView1[i, j + 1].Value = Convert.ToString(dataGridView1[i, j].Value);
+                        break;
+                        }
+                    }
+                    for (int k = i + 1; k < dataGridView1.ColumnCount; k++)
+                    {
+                        if (Convert.ToString(dataGridView1[i, j].Value) == "-")
+                        {
+                            //dataGridView1.Rows.Add();
+                            dataGridView1[i, j + 1].Value = "-";
+                            break;
+                        }
+                        else if (Convert.ToString(dataGridView1[i, j].Value) == "PP")
+                        {
+                            //dataGridView1.Rows.Add();
+                            dataGridView1[i, j + 1].Value = "NP";
+                            break;
+                        }
+                        
+                            
+                         
+                        else if (Convert.ToString(dataGridView1[k, j].Value) != "-" && Convert.ToString(dataGridView1[k, j].Value) != "")
+                        {
+                            textBox2.Text += j;
+                            textBox2.Text += i;
+                            textBox2.Text += "\r" + "\n";
+                            //центральной научной проблемой компьютерной лингвистики является проблема моделирования понимания смвсла текстов
+
+                            if (Convert.ToString(dataGridView1[i, j].Value) == "NP" && Convert.ToString(dataGridView1[k, j].Value) == "NP")// NP + NP
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "NP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "A" && Convert.ToString(dataGridView1[k, j].Value) == "NP")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "NP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "P" && Convert.ToString(dataGridView1[k, j].Value) == "NP")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "PP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "V" && Convert.ToString(dataGridView1[k, j].Value) == "V")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "V" && Convert.ToString(dataGridView1[k, j].Value) == "NP")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "D" && Convert.ToString(dataGridView1[k, j].Value) == "VP")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "D" && Convert.ToString(dataGridView1[k, j].Value) == "V")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "V" && Convert.ToString(dataGridView1[k, j].Value) == "D")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "VP" && Convert.ToString(dataGridView1[k, j].Value) == "NP")
+                            {
+                                //dataGridView1.Rows.Add();
+                                dataGridView1[i, j + 1].Value = "VP";
+                                dataGridView1[k, j + 1].Value = "-";
+                                i = k;
+                                break;
+                            }
+
+                            else if (Convert.ToString(dataGridView1[i, j].Value) == "NP" && Convert.ToString(dataGridView1[k, j].Value) == "VP")
+                            {
+                                /**/
+                                bool exit = false;
+                                for (int u = 0; u < i; u++)
+                                {
+                                   if (Convert.ToString(dataGridView1[u, j].Value) != "-" && Convert.ToString(dataGridView1[u, j].Value) != "")
+                                   {
+                                       //dataGridView1[u, j].Value = "+++";
+                                       exit = true;
+                                       break;
+                                   }
+                                }
+                                for (int y = k + 1; y < dataGridView1.ColumnCount; y++)
+                                {
+                                    if (Convert.ToString(dataGridView1[y, j].Value) != "-" && Convert.ToString(dataGridView1[y, j].Value) != "")
+                                    {
+                                       // dataGridView1[y, j].Value = "+++";
+                                        exit = true;
+                                        break;
+                                    }
+                                }
+                                    /**/
+                                    //dataGridView1.Rows.Add();
+                                if (exit == true)
+                                {
+                                   dataGridView1[i, j + 1].Value = "NP";
+                                   break;
+                                }
+                                else
+                                {
+                                    dataGridView1[i, j + 1].Value = "S";
+                                    //
+                                    j = dataGridView1.RowCount - 1;
+                                        //  i = k;
+                                        break;
+                                }
+                            }
+
+                          
+                            else
+                            {
+                                dataGridView1[i, j + 1].Value = Convert.ToString(dataGridView1[i, j].Value);
+                                break;
+                            }
+
+                           
+                           
+                        }
+                     
+                    }
+                
+                }
+             
+            }
+        }
+    }
+}
