@@ -1,0 +1,536 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;// Подключаем библиотеку System.Diagnostics для работы секундомера
+
+namespace Сортировка_массивов
+{
+     public interface IAction
+     {
+         int NumberAct// Свойство 1 - выбор действия
+         {
+             get;
+             set;
+         }
+     }
+    public interface ISortArray// Интерфейс 1 - сортировка массива разными методами
+    {        
+        int NumberEMass// Свойство 1 - ввод количества элементов массива
+        {
+            get;
+            set;
+        }
+        void SortСhoiceAscending();// Метод 1 - сортировка массива по возрастанию выбором 
+        void SortСhoiceDescending();// Метод 2 - сортировка массива по убыванию выбором 
+        void SortBubbleAscending();// Метод 3 -  сортировка массива по возрастанию обменом (сортировка пузырьком) 
+        void SortBubbleDescending();// Метод 4 - сортировка массива по убыванию обменом (сортировка пузырьком) 
+        void SortInsertsAscending();// Метод 5 -  сортировка массива по возрастанию вставками 
+        void SortInsertsDescending();// Метод 6 - сортировка массива по убыванию вставками 
+        void OutputArrays();// Метод 7 - вывод на экран отсортированного массива
+    }
+    public interface ISortRandomArray//// Интерфейс 2 - присвоение рандомного значения в заданном диапазоне каждому элементу массива
+    {
+        int StRan// Свойство 1 - начало диапазона рандома
+        {
+            get;
+            set;
+        }
+        int EndRan// Свойство 2 - конец диапазона рандома
+        {
+            get;
+            set;
+        }
+        void RandomPri();// Метод 1 - рандомное присвоение значений каждому элементу массива
+    }
+    public interface ISortManuallyArray// Интерфейс 3 - присвоение значений каждому элементу массива вручную
+    {
+        void Manually();
+    }
+    class Act: IAction// Выбор одного из пяти действий
+    {
+        public int dey = 0;
+        public int NumberAct// Свойство 1 - выбор действия
+        {
+            get
+            {
+                return dey;
+            }
+            set
+            {
+                while (true)
+                {
+                    try
+                    {
+                        value = Convert.ToInt32(Console.ReadLine());
+                        if (value > 0 & value < 6)
+                        {
+                            dey = value;
+                            break;
+                        }
+                        else
+                        {
+                            Console.Write("Необходимо ввести число от 1 до 5!\n\n");
+                            Console.Write("Выберите действие ");
+                        }
+                    }
+                    catch
+                    {
+                        Console.Write("Необходимо ввести натуральное число!\n\n");
+                        Console.Write("Выберите действие ");
+                    }
+                }
+            }
+        }
+    }
+    protected class SortRandomArray : ISortArray, ISortRandomArray// Сортировка массива с рандомными значениями элементов 
+    {
+        public int ch = 0, stran, endran;
+        public double[] Array1;
+        public double[] Array2;
+        public double[] Array3;
+        public int[] ArrayHelp1;
+        public int[] ArrayHelp2;
+        public int[] ArrayHelp3;
+        Stopwatch stopWatch1 = new Stopwatch();
+        Stopwatch stopWatch2 = new Stopwatch();
+        Stopwatch stopWatch3 = new Stopwatch();
+        TimeSpan ts1, ts2, ts3;
+        public int NumberEMass// Свойство 1 - ввод количества элементов массива
+        {
+            get
+            {
+                return ch;
+            }
+            set
+            {
+                Console.Write("Введите количество элементов массива ");
+                while (true)
+                {
+                    try
+                    {
+                        value = Convert.ToInt32(Console.ReadLine());
+                        if (value > 0)
+                        {
+                            ch = value;
+                            break;
+                        }
+                        else
+                        {
+                            Console.Write("Введите число больше 0\n\n");
+                            Console.Write("Введите количество элементов массива ");
+                        }
+                    }
+                    catch
+                    {
+                        Console.Write("Необходимо ввести натуральное число!\n\n");
+                        Console.Write("Введите количество элементов массива ");
+                    }
+                }
+            }
+        }
+        public int StRan// Свойство 2 - начало диапазона рандома
+        {
+            get
+            {
+                return stran;
+            }
+            set
+            {
+                Console.Write("Введите значение начала рандома ");
+                while (true)
+                {
+                    try
+                    {
+                        value = Convert.ToInt32(Console.ReadLine());
+                        stran = value;
+                        break;
+                    }
+                    catch
+                    {
+                        Console.Write("Необходимо ввести натуральное число!\n\n");
+                        Console.Write("Введите значение начала рандома ");
+                    }
+                }
+            }
+        }
+        public int EndRan// Свойство 3 - конец диапазона рандома
+        {
+            get
+            {
+                return endran;
+            }
+            set
+            {
+                Console.Write("Введите значение конца рандома ");
+                while (true)
+                {
+                    try
+                    {
+                        value = Convert.ToInt32(Console.ReadLine());
+                        endran = value;
+                        break;
+                    }
+                    catch
+                    {
+                        Console.Write("Необходимо ввести натуральное число!\n\n");
+                        Console.Write("Введите значение конца рандома ");
+                    }
+                }
+            }
+        }
+        public void RandomPri()// Метод 1 - рандомное присвоение значений каждому элементу массива
+        {
+            Array1 = new double[ch];
+            Array2 = new double[ch];
+            Array3 = new double[ch];
+            ArrayHelp1 = new int[ch];
+            ArrayHelp2 = new int[ch];
+            ArrayHelp3 = new int[ch];
+            Console.WriteLine();
+            Random ran = new Random();
+            int number, save;
+            if (endran < stran)
+            {
+                save = endran;
+                endran = stran;
+                stran = save;
+            }
+            for (int i = 0; i < ch; i++)
+            {
+                number = ran.Next(stran, endran + 1);
+                Array1[i] = number;
+                Array2[i] = Array1[i];
+                Array3[i] = Array2[i];
+                {// Присвоение значений вспомогательным массивам
+                    ArrayHelp1[i] = i;
+                    ArrayHelp2[i] = ArrayHelp1[i];
+                    ArrayHelp3[i] = ArrayHelp2[i];
+                }
+                Console.WriteLine("Array [{0}]: " + Array1[i], i);
+            }
+        }
+        public void SortСhoiceAscending()// Метод 2 - сортировка выбором по возрастанию
+        {
+            double min;
+            int j = 0, jhelp;
+            stopWatch1.Start();// Запуск таймера
+            for (int k = 0; k < ch - 1; k++)
+            {
+                min = Array1[k];
+                jhelp = k;
+                for (int i = k + 1; i < ch; i++)
+                {
+                    if (Array1[i] < min)
+                    {
+                        min = Array1[i];
+                        j = i;
+                    }
+                }
+                if (min != Array1[k])
+                {
+                    Array1[j] = Array1[k];
+                    Array1[k] = min;
+                    {// Сохранение изначальной позиции
+                        jhelp = ArrayHelp1[j];
+                        ArrayHelp1[j] = ArrayHelp1[k];
+                        ArrayHelp1[k] = jhelp;
+                    }
+                }
+            }
+            stopWatch1.Stop();// Остановка таймера  
+            ts1 = stopWatch1.Elapsed;
+        }
+        public void SortСhoiceDescending()// Метод 3 - сортировка выбором по убыванию
+        {
+            double max;
+            int j = 0, jhelp;
+            stopWatch1.Start();// Запуск таймера
+            for (int k = 0; k < ch - 1; k++)
+            {
+                max = Array1[k];
+                jhelp = k;
+                for (int i = k + 1; i < ch; i++)
+                {
+                    if (Array1[i] > max)
+                    {
+                        max = Array1[i];
+                        j = i;
+                    }
+                }
+                if (max != Array1[k])
+                {
+                    Array1[j] = Array1[k];
+                    Array1[k] = max;
+                    {// Сохранение изначальной позиции
+                        jhelp = ArrayHelp1[j];
+                        ArrayHelp1[j] = ArrayHelp1[k];
+                        ArrayHelp1[k] = jhelp;
+                    }
+                }
+            }
+            stopWatch1.Stop();// Остановка таймера
+            ts1 = stopWatch1.Elapsed;
+        }
+        public void SortBubbleAscending()// Метод 4 - сортировка обменом по возрастанию
+        {
+            double save;
+            int savehelp;
+            stopWatch2.Start();// Запуск таймера
+            for (int k = ch - 1; k > 0; k--)
+            {
+                for (int i = 0; i < k; i++)
+                {
+                    if (Array2[i] > Array2[i + 1])
+                    {
+                        save = Array2[i];
+                        Array2[i] = Array2[i + 1];
+                        Array2[i + 1] = save;
+                        {// Сохранение изначальной позиции
+                            savehelp = ArrayHelp2[i];
+                            ArrayHelp2[i] = ArrayHelp2[i + 1];
+                            ArrayHelp2[i + 1] = savehelp;
+                        }
+                    }
+                }
+            }
+            stopWatch2.Stop();// Остановка таймера
+            ts2 = stopWatch2.Elapsed;
+        }
+        public void SortBubbleDescending()// Метод 5 - сортировка обменом по убыванию
+        {
+            double save;
+            int savehelp;
+            stopWatch2.Start();// Запуск таймера
+            for (int k = ch - 1; k > 0; k--)
+            {
+                for (int i = 0; i < k; i++)
+                {
+                    if (Array2[i] < Array2[i + 1])
+                    {
+                        save = Array2[i];
+                        Array2[i] = Array2[i + 1];
+                        Array2[i + 1] = save;
+                        {// Сохранение изначальной позиции
+                            savehelp = ArrayHelp2[i];
+                            ArrayHelp2[i] = ArrayHelp2[i + 1];
+                            ArrayHelp2[i + 1] = savehelp;
+                        }
+                    }
+                }
+            }
+            stopWatch2.Stop();// Остановка таймера
+            ts2 = stopWatch2.Elapsed;
+        }
+        public void SortInsertsAscending()// Метод 6 - Сортировка вставками по возрастанию
+        {
+            double tek;
+            stopWatch3.Start();// Запуск таймера
+            for (int i = 0; i < ch; i++)
+            {
+                tek = Array3[i];
+                int j = i - 1;
+                while (j >= 0 && Array3[j] > tek)
+                {
+                    Array3[j + 1] = Array3[j];
+                    ArrayHelp3[j + 1] = ArrayHelp3[j];// Сохранение изначальной позиции
+                    j--;
+                }
+                Array3[j + 1] = tek;
+                ArrayHelp3[j + 1] = i;// Сохранение изначальной позиции
+            }
+            stopWatch3.Stop();// Остановка таймера
+            ts3 = stopWatch3.Elapsed;
+        }
+        public void SortInsertsDescending()// Метод 7 - Сортировка вставками по убыванию
+        {
+            double tek;
+            stopWatch3.Start();// Запуск таймера
+            for (int i = 0; i < ch; i++)
+            {
+                tek = Array3[i];
+
+                int j = i - 1;
+                while (j >= 0 && Array3[j] < tek)
+                {
+                    Array3[j + 1] = Array3[j];
+                    ArrayHelp3[j + 1] = ArrayHelp3[j];// Сохранение изначальной позиции
+                    j--;
+                }
+                Array3[j + 1] = tek;
+                ArrayHelp3[j + 1] = i;// Сохранение изначальной позиции
+            }
+            stopWatch3.Stop();// Остановка таймера
+            ts3 = stopWatch3.Elapsed;
+        }
+        public void OutputArrays()// Метод 8 - вывод на экран отсортированного массива
+        {
+            if (ch > 99)
+            {
+                Console.Write("\n\tСортировка выбором\t\t\t"
+                + "Сортировка обменом\t\t\tСортировка вставками\n ");
+            }
+            else
+            {
+                Console.Write("\n\tСортировка выбором\t\t"
+                + "Сортировка обменом\t\tСортировка вставками\n ");
+            }
+            for (int i = 0; i < ch; i++)
+            {
+                if (ch > 99)
+                {
+                    string str = "";
+                    Console.Write("\tArray[{0}]({1}):{7, -5}"
+                    + "\t{2, -10}\tArray[{0}]({3}):{7, -5}\t{4, -10}\t"
+                    + "Array[{0}]({5}):{7, -5}\t{6, -10}"
+                    + "\n", i, ArrayHelp1[i], Array1[i], 
+                    ArrayHelp2[i], Array2[i], ArrayHelp3[i], Array3[i], str);
+                }
+                else
+                {
+                    Console.WriteLine("\tArray[{0}]({1}):\t{2, -10}"
+                    + "\tArray[{0}]({3}):\t{4, -10}\t"
+                    + "Array[{0}]({5}):\t{6, -10}", i, ArrayHelp1[i], Array1[i],
+                    ArrayHelp2[i], Array2[i], ArrayHelp3[i], Array3[i]);
+                }
+            }
+            if (ch > 99)
+            {
+                Console.WriteLine("\nВремя сортировки:");
+                Console.Write("\tСортировка выбором\t\t\t"
+                + "Сортировка обменом\t\t\tСортировка вставками\n ");
+                Console.WriteLine("\t" + ts1 + "\t\t\t" + ts2 + "\t\t\t" + ts3);
+            }
+            else
+            {
+                Console.WriteLine("\nВремя сортировки:");
+                Console.Write("\tСортировка выбором\t\tСортировка обменом\t\t"
+                + "Сортировка вставками\n ");
+                Console.WriteLine("\t" + ts1 + "\t\t" + ts2 + "\t\t" + ts3);
+            }
+        }
+    }
+    class SortManuallyArray : SortRandomArray, ISortManuallyArray// Сортировка массива со значениями элементов, введённых вручную 
+    {
+        public void Manually()// Метод 1 - присвоение значений каждому элементу массива вручную
+        {
+            Array1 = new double[ch];
+            Array2 = new double[ch];
+            Array3 = new double[ch];
+            ArrayHelp1 = new int[ch];
+            ArrayHelp2 = new int[ch];
+            ArrayHelp3 = new int[ch];
+            for (int i = 0; i < ch; i++)
+            {
+                Console.Write("Array[{0}]: ", i);
+                while (true)
+                {
+                    try
+                    {
+                        Array1[i] = Convert.ToDouble(Console.ReadLine());
+                        Array2[i] = Array1[i];
+                        Array3[i] = Array1[i];
+                        {// Присвоение значений вспомогательным массивам
+                            ArrayHelp1[i] = i;
+                            ArrayHelp2[i] = ArrayHelp1[i];
+                            ArrayHelp3[i] = ArrayHelp2[i];
+                        }
+                        break;
+                    }
+                    catch
+                    {
+                        Console.Write("Необходимо ввести натуральное число!\n\n");
+                        Console.Write("Array[{0}]: ", i);
+                    }
+                }
+            }
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int cycle = 1;
+            while (cycle == 1)
+            {
+                SortRandomArray sortRArr = new SortRandomArray();
+                SortManuallyArray sortMArr = new SortManuallyArray();
+                Act act = new Act();
+                Console.Write("Выберите действие\nВведите натуральное число от 1 до 5\n1. Сортировка произвольных элементов массива по возрастанию."
+                    + "\n2. Сортировка произвольных элементов массива по убыванию.\n3. Сортировка элементов массива, введённых вручную, по возрастанию."
+                    + "\n4. Сортировка элементов массива, введённых вручную, по убыванию.\n5. Справка о методах сортировки.\n\n");
+                act.NumberAct = new int();
+                switch (act.NumberAct)
+                {
+                    case 1:
+                        {
+                            Console.WriteLine("\n1. Сортировка произвольных элементов массива по возрастанию.\n");
+                            sortRArr.NumberEMass = new int();
+                            sortRArr.StRan = new int();
+                            sortRArr.EndRan = new int();
+                            sortRArr.RandomPri();
+                            sortRArr.SortСhoiceAscending();
+                            sortRArr.SortBubbleAscending();
+                            sortRArr.SortInsertsAscending();
+                            sortRArr.OutputArrays();
+                            Console.WriteLine();
+                            break;
+                        }
+                    case 2:
+                        {
+                            Console.WriteLine("\n2. Сортировка произвольных элементов массива по убыванию.\n");
+                            sortRArr.NumberEMass = new int();
+                            sortRArr.StRan = new int();
+                            sortRArr.EndRan = new int();
+                            sortRArr.RandomPri();
+                            sortRArr.SortСhoiceDescending();
+                            sortRArr.SortBubbleDescending();
+                            sortRArr.SortInsertsDescending();
+                            sortRArr.OutputArrays();
+                            Console.WriteLine();
+                            break;
+                        }
+                    case 3:
+                        {
+                            Console.WriteLine("\n3. Сортировка элементов массива, введённых вручную, по возрастанию.\n");
+                            sortMArr.NumberEMass = new int();
+                            Console.WriteLine();
+                            sortMArr.Manually();
+                            sortMArr.SortСhoiceAscending();
+                            sortMArr.SortBubbleAscending();
+                            sortMArr.SortInsertsAscending();
+                            sortMArr.OutputArrays();
+                            Console.WriteLine();
+                            break;
+                        }
+                    case 4:
+                        {
+                            Console.WriteLine("\n4. Сортировка элементов массива, введённых вручную, по убыванию.\n");
+                            sortMArr.NumberEMass = new int();
+                            Console.WriteLine();
+                            sortMArr.Manually();
+                            sortMArr.SortСhoiceDescending();
+                            sortMArr.SortBubbleDescending();
+                            sortMArr.SortInsertsDescending();
+                            sortMArr.OutputArrays();
+                            Console.WriteLine();
+                            break;
+                        }
+                    case 5:
+                        {
+                            Console.WriteLine("\n5. Справка о методах сортировки.\n");
+                            Console.Write("1. Сортировка выбором основана на определении наибольшего (наименьшего) элемента, который переносится в начало массива. "
+                                              + "Затем эта процедура применяется ко всем оставшимся элементам, кроме уже перемещённых.\n"
+                                              + "\n2. Сортировка обменом (сортировка пузырьком) основана на последовательном сравнении пары соседних элементов.\n"
+                                              + "Если пара расположена не в требуемом порядке, то элементы переставляются.\n\n3. Сортировка вставками основана на внедрении "
+                                              + "в отсортированную часть массива элемента, следующего за этой частью.\nСначала второй элемент сравнивается с первым, "
+                                              + "затем третий элемент сравнивается с двумя первыми, и так далее.\n\n");
+                            break;
+                        }
+                }
+            }
+        }
+    }
+}
+
