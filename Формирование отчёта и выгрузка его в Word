@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using Word = Microsoft.Office.Interop.Word;
+
+
+namespace STO
+{
+    public partial class Отчёт_о_клиентах : Form
+    {
+        public Отчёт_о_клиентах()
+        {
+            InitializeComponent();
+            UpdateTable();
+            
+        }
+
+        public void UpdateTable()
+        {
+            string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            connection.Open();
+            string sql = @"SELECT TOP (10) Client.ID_Client AS 'Код клиента', Client.Full_name AS 'ФИО', count(Service.Car_ID) AS 'Количество',
+ sum (Work.Price*Work.Quantity + Work_Material.Price*Work_Material.Quantity) AS 'Сумма'
+FROM Service
+JOIN Car ON Service.Car_ID = Car.ID_Car
+JOIN Client ON Car.Client_ID = Client.ID_Client
+JOIN Work ON Work.Service_ID = Service.ID_Service
+JOIN Work_Material ON Work_Material.ID_Work = Work.ID_Work
+WHERE Service.Date BETWEEN '" + dateTimePicker1.Value + "' AND '" + dateTimePicker2.Value
+                             + "'GROUP BY Client.ID_Client, Client.Full_name ORDER BY 4 DESC";
+            SqlCommand sqlCommand = new SqlCommand(sql, connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand);
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            dataGridView1.DataSource = dataTable;
+            connection.Close();
+        }
+
+        public void RWS(string stubReplace, DateTime dt, Word.Document wordDocument)
+        {
+            var range = wordDocument.Content;
+            range.Find.ClearFormatting();
+            range.Find.Execute(FindText: stubReplace, ReplaceWith: dt);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            connection.Open();
+            string sql = @"SELECT TOP (10) Client.ID_Client AS 'Код клиента', Client.Full_name AS 'ФИО',
+            count(Service.Car_ID) AS 'Количество',
+            sum (Work.Price*Work.Quantity + Work_Material.Price*Work_Material.Quantity) AS 'Сумма'
+            FROM Service
+            JOIN Car ON Service.Car_ID = Car.ID_Car
+            JOIN Client ON Car.Client_ID = Client.ID_Client
+            JOIN Work ON Work.Service_ID = Service.ID_Service
+            JOIN Work_Material ON Work_Material.ID_Work = Work.ID_Work
+            WHERE Service.Date BETWEEN '" + dateTimePicker1.Value + "' AND '" + dateTimePicker2.Value
+                             + "'GROUP BY Client.ID_Client, Client.Full_name ORDER BY 4 DESC";
+            SqlCommand sqlCommand = new SqlCommand(sql, connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand);
+            DataTable dt = new DataTable();
+            dataAdapter.Fill(dt);
+            connection.Close();
+
+            Word.Application app = new Word.Application();
+            Word.Table table = app.Documents.Open(AppDomain.CurrentDomain.BaseDirectory + "top10cSh.dotx").Tables[1];
+            var wordDocument = app.Documents.Open(AppDomain.CurrentDomain.BaseDirectory + "top10cSh.dotx");
+            RWS("#OneDate#", Convert.ToDateTime(dateTimePicker1.Value.ToString("dd MMMM yyyy")), wordDocument);
+            RWS("#TwoDate#", Convert.ToDateTime(dateTimePicker2.Value.ToString("dd MMMM yyyy")), wordDocument);
+            RWS("#Date#", Convert.ToDateTime(DateTime.Now.ToString("dd MMMM yyyy")), wordDocument);
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (i > 0) table.Rows.Add();
+                table.Rows[(i + 2)].Cells[1].Range.Text = Convert.ToString(i+1);
+                table.Rows[(i + 2)].Cells[2].Range.Text = dt.Rows[i][0].ToString();
+                table.Rows[(i + 2)].Cells[3].Range.Text = dt.Rows[i][1].ToString();
+                table.Rows[(i + 2)].Cells[4].Range.Text = dt.Rows[i][2].ToString();
+                table.Rows[(i + 2)].Cells[5].Range.Text = dt.Rows[i][3].ToString();
+               
+            }
+            app.Visible = true;
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateTable();
+        }
+
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateTable();
+        }
+    }
+}
