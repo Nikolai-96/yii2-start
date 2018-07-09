@@ -1,0 +1,270 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+
+namespace STO
+{
+    public partial class Автомобили : Form
+    {
+        public Автомобили()
+        {
+            InitializeComponent();
+        }
+
+        private void Автомобили_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "sTODataSet.Car". При необходимости она может быть перемещена или удалена.
+            this.carTableAdapter.Fill(this.sTODataSet.Car);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "sTODataSet.Client". При необходимости она может быть перемещена или удалена.
+            this.clientTableAdapter.Fill(this.sTODataSet.Client);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "sTODataSet.Model". При необходимости она может быть перемещена или удалена.
+            this.modelTableAdapter.Fill(this.sTODataSet.Model);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "sTODataSet.Make". При необходимости она может быть перемещена или удалена.
+            this.makeTableAdapter.Fill(this.sTODataSet.Make);
+            groupBox1.Visible = false;
+            carDataGridView.Visible = true;
+            UpdateTable();
+            Clean(); 
+        }
+
+        public void UpdateTable()
+        {
+            try
+            {
+                string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+                SqlConnection connection = new SqlConnection(ConnectionString);
+                connection.Open();
+                string sql = @"SELECT ID_Car AS 'Код автомобиля', Make.Name As Марка,
+                                      Model.Name AS Модель, Year_of_issue AS 'Год выпуска',
+                                      State_number AS Госномер, Series AS Серия,
+                                      Number AS Номер, Client.Full_name AS Клиент
+                                FROM Car
+                                JOIN Model ON Car.Model_ID = Model.ID_Model 
+                                JOIN Make ON Model.Make_ID = Make.ID_Make 
+                                JOIN Client ON Car.Client_ID = Client.ID_Client";
+                SqlCommand sqlCommand = new SqlCommand(sql, connection);
+                SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand);
+                DataTable dt = new DataTable();
+                dataAdapter.Fill(dt);
+                carDataGridView.DataSource = dt;
+                connection.Close();
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public void On()
+        {
+            carDataGridView.Visible = false;
+            groupBox1.Visible = true;
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            textBox5.Enabled = false;
+            comboBox4.Enabled = false;
+        }
+
+        public void Off()
+        {
+            groupBox1.Visible = false;
+            carDataGridView.Visible = true;
+            button1.Enabled = true;
+            button2.Enabled = true;
+            button3.Enabled = true;
+            textBox5.Enabled = true;
+            comboBox4.Enabled = true;
+        }
+
+        public void Clean()
+        {
+            textBox1.Clear();
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox4.Clear();
+            comboBox1.Text = "";
+            comboBox2.Text = "";
+            comboBox3.Text = "";
+        }
+
+        public int id;
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            groupBox1.Text = "Добавление";
+            On();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            groupBox1.Text = "Редактирование";
+            On();
+            textBox1.Text = Convert.ToString(carDataGridView[3, carDataGridView.CurrentCell.RowIndex].Value);
+            textBox2.Text = Convert.ToString(carDataGridView[4, carDataGridView.CurrentCell.RowIndex].Value);
+            textBox3.Text = Convert.ToString(carDataGridView[5, carDataGridView.CurrentCell.RowIndex].Value);
+            textBox4.Text = Convert.ToString(carDataGridView[6, carDataGridView.CurrentCell.RowIndex].Value);           
+            comboBox1.Text = Convert.ToString(carDataGridView[1, carDataGridView.CurrentCell.RowIndex].Value);
+            comboBox2.Text = Convert.ToString(carDataGridView[2, carDataGridView.CurrentCell.RowIndex].Value);
+            comboBox3.Text = Convert.ToString(carDataGridView[7, carDataGridView.CurrentCell.RowIndex].Value);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Вы уверены?", "Удаление клиента", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+            if (result == DialogResult.OK) //Если нажать ОК
+            {
+
+                string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+                SqlConnection connection = new SqlConnection(ConnectionString);
+                connection.Open();
+                string sql = "DELETE From Car Where ID_Car =" + id;
+                SqlCommand sqlCommand = new SqlCommand(sql, connection);
+                sqlCommand.ExecuteNonQuery();
+                connection.Close();
+                UpdateTable();                   
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+           
+                string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+                SqlConnection connection = new SqlConnection(ConnectionString);
+
+                if (groupBox1.Text == "Добавление") // Добавление данных
+                {
+                    connection.Open();
+                    string sql = "Insert Into Car (Model_ID, Year_of_issue, State_number, Series, Number, Client_ID) Values('" +
+                         comboBox3.SelectedValue + "','" + textBox1.Text + "','" + textBox2.Text + "','" +
+                         textBox3.Text + "','" + textBox4.Text + "','" + comboBox3.SelectedValue + "')";
+                    SqlCommand sqlCommandAdd = new SqlCommand(sql, connection);
+                    sqlCommandAdd.ExecuteNonQuery();
+                    connection.Close();
+                }
+                else if (groupBox1.Text == "Редактирование")
+                {
+                    connection.Open();
+                       string sql = "UPDATE Car SET Model_ID ='" + comboBox2.SelectedValue +
+                        "',Year_of_issue ='" + textBox1.Text +
+                        "', State_number ='" + textBox2.Text +
+                        "',  Series ='" + textBox3.Text +
+                        "', Number ='" + textBox4.Text +
+                        "', Client_ID ='" + comboBox3.SelectedValue + "'WHERE ID_Car=" + id;
+
+                    SqlCommand sqlCommandUp = new SqlCommand(sql, connection);
+                    sqlCommandUp.ExecuteNonQuery();
+                    connection.Close();
+                }
+                UpdateTable();
+                Off();
+                Clean();   
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Off();
+            Clean();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            Марки mar = new Марки();
+            mar.external = true;
+            mar.On();
+            mar.groupBox1.Text = "Добавление";
+            mar.ShowDialog();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            Модели mod = new Модели();          
+            mod.external = true;
+            mod.On();
+            mod.groupBox1.Text = "Добавление";
+            mod.ShowDialog();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            Клиенты k = new Клиенты();
+            k.external = true;
+            k.On();
+            k.groupBox1.Text = "Добавление";
+            k.ShowDialog();
+        }
+
+        private void Автомобили_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (groupBox1.Visible == true)
+            {
+                MessageBox.Show("Завершите процедуру!", "Ошибка выхода");
+                e.Cancel = true;            
+            }
+        }
+
+        private void carDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            id = Convert.ToInt32(carDataGridView[0, carDataGridView.CurrentRow.Index].Value);
+        }
+
+        private void textBox5_TextChanged(object sender, EventArgs e)
+        {
+            comboBox4.Text = "";
+            string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            connection.Open();
+            string sql = @"SELECT ID_Car AS 'Код автомобиля', Make.Name As Марка,
+                                      Model.Name AS Модель, Year_of_issue AS 'Год выпуска',
+                                      State_number AS Госномер, Series AS Серия,
+                                      Number AS Номер, Client.Full_name AS Клиент
+                                FROM Car
+                                JOIN Model ON Car.Model_ID = Model.ID_Model 
+                                JOIN Make ON Model.Make_ID = Make.ID_Make 
+                                JOIN Client ON Car.Client_ID = Client.ID_Client
+                           WHERE State_number LIKE '%" + textBox5.Text + "%'";
+            SqlCommand sqlCommand = new SqlCommand(sql, connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand);
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            carDataGridView.DataSource = dataTable;
+            connection.Close();
+        }
+
+        private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            textBox5.Text = "";
+            string ConnectionString = @"Data Source=DESKTOP-N6735S8;Initial Catalog=STO;Integrated Security=True";
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            connection.Open();
+            string sql = @"SELECT ID_Car AS 'Код автомобиля', Make.Name As Марка,
+                                      Model.Name AS Модель, Year_of_issue AS 'Год выпуска',
+                                      State_number AS Госномер, Series AS Серия,
+                                      Number AS Номер, Client.Full_name AS Клиент
+                                FROM Car
+                                JOIN Model ON Car.Model_ID = Model.ID_Model 
+                                JOIN Make ON Model.Make_ID = Make.ID_Make 
+                                JOIN Client ON Car.Client_ID = Client.ID_Client
+                           WHERE ID_Make = '" + comboBox4.SelectedValue + "'";
+            SqlCommand sqlCommand = new SqlCommand(sql, connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand);
+            DataTable dataTable = new DataTable();
+            dataAdapter.Fill(dataTable);
+            carDataGridView.DataSource = dataTable;
+            connection.Close();
+        }
+
+       
+    }
+}
