@@ -1,0 +1,155 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace WpfApplication3
+{
+    /// <summary>
+    /// Interaction logic for _9.xaml
+    /// </summary>
+    public partial class _9 : Window
+    {
+        public _9()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            _6 taskWindow = new _6();
+            taskWindow.Show();
+            this.Close();
+        }
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow taskWindow = new MainWindow();
+            taskWindow.Show();
+            this.Close();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime Первая_дата = new DateTime();
+            Первая_дата = Convert.ToDateTime(textBox.Text);
+
+            DateTime Вторая_дата = new DateTime();
+            Вторая_дата = Первая_дата.AddDays(1);
+
+            int ID_Пожара = Convert.ToInt32(textBox1.Text);
+
+            Модель_пожарной_части db = new Модель_пожарной_части();
+            
+            var sql_zap = from пожар in db.Пожар
+                          join акт in db.Акт_пожара on пожар.Номер_пожара equals акт.Пожар
+                          join выезд in db.Выезд on пожар.Номер_пожара equals выезд.Пожар
+                          join боевой_расчет in db.Боевые_расчеты on выезд.Расчет equals боевой_расчет.Код_расчета
+                          join техника in db.Техника on боевой_расчет.Техника equals техника.Код_техники
+                          join личный_состав in db.Личный_состав on акт.Составил equals личный_состав.Код_сотрудника
+                          where пожар.Дата_и_время >= Первая_дата
+                          where пожар.Дата_и_время < Вторая_дата
+                          where пожар.Номер_пожара == ID_Пожара
+                          select new
+                          {
+                              Номер_пожара = пожар.Номер_пожара,
+                              Дата_и_время_пожара = пожар.Дата_и_время,
+                              Статус = пожар.Статус,
+                              Что_горит = пожар.Что_горит,
+                              Место = пожар.Место,
+                              Фамилия_заявителя = пожар.Фамилия_заявителя,
+                              Телефон_заявителя = пожар.Телефон_заявителя,
+
+                              Расчет = выезд.Расчет,
+                              Время_выезда = выезд.Время_выезда,
+                              Время_прибытия = выезд.Время_прибытия,
+                              Время_локализации = выезд.Время_локализации,
+                              Время_ликвидации = выезд.Время_ликвидации,
+                              Время_возвращения = выезд.Время_возвращения,
+                              Принятые_меры = выезд.Принятые_меры,
+
+                              Техника = техника.Полное_наименование,
+
+                              Погибло_всего = акт.Погибло_всего,
+                              Погибло_детей = акт.Погибло_детей,
+                              Погибло_сотрудников_ПБ = акт.Погибло_сотрудников_ПБ,
+                              Погибло_животных = акт.Погибло_животных,
+                              Сведения_о_погибших = акт.Сведения_о_погибших,
+                              Спасено_людей = акт.Спасено_людей,
+                              Спасено_техники = акт.Спасено_техники,
+                              Спасено_мат_ценностей = акт.Спасено_мат_ценностей,
+                              Получили_травмы_всего = акт.Получили_травмы_всего,
+                              Получили_травмы_дети = акт.Получили_травмы_дети,
+                              Получили_травмы_сотрудники_ПБ = акт.Получили_травмы_сотрудники_ПБ,
+                              Сведения_о_травмированных = акт.Сведения_о_травмированных,
+                              Уничтоженно_строений = акт.Уничтоженно_строений,
+                              Уничтожено_квартир = акт.Уничтожено_квартир,
+                              Особые_замечания = акт.Особые_замечания,
+
+                              Составил = личный_состав.Код_сотрудника,
+                          };
+
+            if (sql_zap.Count() == 0)
+            {
+                MessageBox.Show("Проверьте правильность вводимых данных!");
+            }
+            else
+            {
+                _10 taskWindow = new _10();
+                foreach (var AktItem in sql_zap)
+                {
+                    taskWindow.textBox.Text = AktItem.Номер_пожара.ToString();
+                    taskWindow.Пожар_ID = Convert.ToInt32(AktItem.Номер_пожара);
+
+                    taskWindow.textBox1.Text = Convert.ToDateTime(AktItem.Дата_и_время_пожара).ToShortDateString();
+                    taskWindow.textBox2.Text = Convert.ToDateTime(AktItem.Дата_и_время_пожара).ToLongTimeString();
+                    taskWindow.textBox3.Text = AktItem.Статус.ToString();
+                    taskWindow.textBox4.Text = AktItem.Что_горит.ToString();
+                    taskWindow.textBox5.Text = AktItem.Место.ToString();
+                    taskWindow.textBox6.Text = AktItem.Фамилия_заявителя.ToString();
+                    taskWindow.textBox7.Text = AktItem.Телефон_заявителя.ToString();
+
+                    taskWindow.textBox8.Text = AktItem.Расчет.ToString();
+                    taskWindow.textBox9.Text = Convert.ToDateTime(AktItem.Время_выезда).ToLongTimeString();
+                    taskWindow.textBox10.Text = Convert.ToDateTime(AktItem.Время_прибытия).ToLongTimeString();
+                    taskWindow.textBox11.Text = Convert.ToDateTime(AktItem.Время_локализации).ToLongTimeString();
+                    taskWindow.textBox12.Text = Convert.ToDateTime(AktItem.Время_ликвидации).ToLongTimeString();
+                    taskWindow.textBox13.Text = Convert.ToDateTime(AktItem.Время_возвращения).ToLongTimeString();
+                    taskWindow.textBox15.Text = AktItem.Принятые_меры.ToString();
+
+                    taskWindow.textBox14.Text = AktItem.Техника.ToString();
+
+                    taskWindow.textBox16.Text = AktItem.Погибло_всего.ToString();
+                    taskWindow.textBox17.Text = AktItem.Погибло_детей.ToString();
+                    taskWindow.textBox18.Text = AktItem.Погибло_сотрудников_ПБ.ToString();
+                    taskWindow.textBox19.Text = AktItem.Погибло_животных.ToString();
+                    taskWindow.textBox20.Text = AktItem.Сведения_о_погибших.ToString();
+                    taskWindow.textBox21.Text = AktItem.Спасено_людей.ToString();
+                    taskWindow.textBox22.Text = AktItem.Спасено_техники.ToString();
+                    taskWindow.textBox23.Text = AktItem.Спасено_мат_ценностей.ToString();
+                    taskWindow.textBox24.Text = AktItem.Получили_травмы_всего.ToString();
+                    taskWindow.textBox25.Text = AktItem.Получили_травмы_дети.ToString();
+                    taskWindow.textBox26.Text = AktItem.Получили_травмы_сотрудники_ПБ.ToString();
+                    taskWindow.textBox27.Text = AktItem.Сведения_о_травмированных.ToString();
+                    taskWindow.textBox28.Text = AktItem.Уничтоженно_строений.ToString();
+                    taskWindow.textBox29.Text = AktItem.Уничтожено_квартир.ToString();
+                    taskWindow.textBox30.Text = AktItem.Особые_замечания.ToString();
+
+                    taskWindow.textBox31.Text = AktItem.Составил.ToString();
+
+                }
+                taskWindow.Show();
+                this.Close();
+            }
+        }
+    }
+}
